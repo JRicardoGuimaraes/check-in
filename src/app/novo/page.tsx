@@ -40,8 +40,8 @@ export default function NovoHospede() {
       const { error } = await supabase.from('reservas').insert([
         {
           ...formData,
-          qtd_adultos: parseInt(formData.qtd_adultos),
-          qtd_criancas: parseInt(formData.qtd_criancas),
+          qtd_adultos: parseInt(formData.qtd_adultos) as any,
+          qtd_criancas: parseInt(formData.qtd_criancas) as any,
           valor_sinal: parseFloat(formData.valor_sinal) || 0,
           valor_restante: parseFloat(formData.valor_restante) || 0,
         },
