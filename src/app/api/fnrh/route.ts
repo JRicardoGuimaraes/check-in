@@ -35,35 +35,22 @@ export async function POST(request: Request) {
           origem_reserva_id: data.reserva_ota ? "OTA" : "MEIOHOSPEDAGEM"
         };
 
-        const res = await fetch(`${baseUrl}/reservas`, {
+        const response = await fetch(`${baseUrl}/reservas`, {
           method: 'POST',
           headers,
           body: JSON.stringify(payload)
         });
         
-        const resData = await res.json();
-
-                const res = await fetch(`${baseUrl}/reservas`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload)
-        });
+        const resData = await response.json();
+        console.log("RESPOSTA DA FNRH (CREATE):", JSON.stringify(resData, null, 2));
         
-        const resData = await res.json();
-        console.log("RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
-        
-        // AJUSTE AQUI: Se a FNRH retornar um erro de autorização no corpo do JSON
         if (resData.type === 'AUTHORIZATION' || resData.code === 401) {
-           return NextResponse.json({ 
-             error: 'Erro de Autenticação na FNRH: Verifique usuário e senha na Vercel.' 
-           }, { status: 401 });
+           return NextResponse.json({ error: 'Erro de Autenticação na FNRH' }, { status: 401 });
         }
-      
-        // ADICIONE ESTA LINHA PARA VERMOS O QUE A FNRH RESPONDEU
-        console.log("TESTE: RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
-        
+
         return NextResponse.json(resData);
       }
+
       case 'update': {
         const numeroReserva = `${data.telefone}${data.nome_hosp_princ.replace(/\s+/g, '')}`;
         const payload = {
@@ -76,28 +63,32 @@ export async function POST(request: Request) {
           origem_reserva_id: data.reserva_ota ? "OTA" : "MEIOHOSPEDAGEM"
         };
 
-        const res = await fetch(`${baseUrl}/reservas/${fnrh_id}`, {
+        const response = await fetch(`${baseUrl}/reservas/${fnrh_id}`, {
           method: 'PUT',
           headers,
           body: JSON.stringify(payload)
         });
-        return NextResponse.json({ success: true }, { status: res.status });
+        
+        const resData = await response.json();
+        console.log("RESPOSTA DA FNRH (UPDATE):", JSON.stringify(resData, null, 2));
+        
+        return NextResponse.json({ success: true, data: resData }, { status: response.status });
       }
 
       case 'delete': {
-        const res = await fetch(`${baseUrl}/reservas/${fnrh_id}`, {
+        const response = await fetch(`${baseUrl}/reservas/${fnrh_id}`, {
           method: 'DELETE',
           headers
         });
-        return NextResponse.json({ success: true }, { status: res.status });
+        return NextResponse.json({ success: true }, { status: response.status });
       }
 
       case 'cancel': {
-        const res = await fetch(`${baseUrl}/reservas/${fnrh_id}/cancelar`, {
+        const response = await fetch(`${baseUrl}/reservas/${fnrh_id}/cancelar`, {
           method: 'POST',
           headers
         });
-        return NextResponse.json({ success: true }, { status: res.status });
+        return NextResponse.json({ success: true }, { status: response.status });
       }
 
       default:
