@@ -32,7 +32,7 @@ export async function POST(request: Request) {
           data_saida: data.data_checkout,
           quantidade_hospede_adulto: parseInt(data.qtd_adultos),
           quantidade_hospede_menor: parseInt(data.qtd_criancas),
-          origem_reserva_id: data.reserva_ota ? "OTA" : "MEIODEHOSPEDAGEM"
+          origem_reserva_id: data.reserva_ota ? "OTA" : "MEIOHOSPEDAGEM"
         };
 
         const res = await fetch(`${baseUrl}/reservas`, {
@@ -42,7 +42,23 @@ export async function POST(request: Request) {
         });
         
         const resData = await res.json();
+
+                const res = await fetch(`${baseUrl}/reservas`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
         
+        const resData = await res.json();
+        console.log("RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
+        
+        // AJUSTE AQUI: Se a FNRH retornar um erro de autorização no corpo do JSON
+        if (resData.type === 'AUTHORIZATION' || resData.code === 401) {
+           return NextResponse.json({ 
+             error: 'Erro de Autenticação na FNRH: Verifique usuário e senha na Vercel.' 
+           }, { status: 401 });
+        }
+      
         // ADICIONE ESTA LINHA PARA VERMOS O QUE A FNRH RESPONDEU
         console.log("TESTE: RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
         
@@ -56,7 +72,8 @@ export async function POST(request: Request) {
           data_entrada: data.data_checkin,
           data_saida: data.data_checkout,
           quantidade_hospede_adulto: parseInt(data.qtd_adultos),
-          quantidade_hospede_menor: parseInt(data.qtd_criancas)
+          quantidade_hospede_menor: parseInt(data.qtd_criancas),
+          origem_reserva_id: data.reserva_ota ? "OTA" : "MEIOHOSPEDAGEM"
         };
 
         const res = await fetch(`${baseUrl}/reservas/${fnrh_id}`, {
