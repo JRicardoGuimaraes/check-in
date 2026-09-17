@@ -23,7 +23,6 @@ export async function POST(request: Request) {
     // Lógica de Ações
     switch (action) {
       case 'create': {
-        // Regra: numero_reserva = telefone + nome (sem espaços)
         const numeroReserva = `${data.telefone}${data.nome_hosp_princ.replace(/\s+/g, '')}`;
         
         const payload = {
@@ -41,10 +40,14 @@ export async function POST(request: Request) {
           headers,
           body: JSON.stringify(payload)
         });
+        
         const resData = await res.json();
+        
+        // ADICIONE ESTA LINHA PARA VERMOS O QUE A FNRH RESPONDEU
+        console.log("RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
+        
         return NextResponse.json(resData);
       }
-
       case 'update': {
         const numeroReserva = `${data.telefone}${data.nome_hosp_princ.replace(/\s+/g, '')}`;
         const payload = {
