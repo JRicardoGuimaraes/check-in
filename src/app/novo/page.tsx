@@ -76,7 +76,7 @@ export default function NovoHospede() {
           alert('Reserva cadastrada e sincronizada com FNRH com sucesso!');
         } else {
           console.error('Erro na FNRH:', fnrhResponse);
-          alert('Reserva salva localmente, mas houve um erro ao sincronizar com a FNRH.');
+          alert('TESTE:Reserva salva localmente, mas houve um erro ao sincronizar com a FNRH.');
         }
       } catch (fnrhError) {
         console.error('Erro de conexão com API FNRH:', fnrhError);
