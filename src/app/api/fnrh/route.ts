@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         const resData = await res.json();
         
         // ADICIONE ESTA LINHA PARA VERMOS O QUE A FNRH RESPONDEU
-        console.log("RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
+        console.log("TESTE: RESPOSTA DA FNRH:", JSON.stringify(resData, null, 2));
         
         return NextResponse.json(resData);
       }
