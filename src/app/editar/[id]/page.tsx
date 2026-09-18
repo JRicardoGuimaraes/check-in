@@ -27,8 +27,8 @@ export default function EditarHospede() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [fnrhId, setFnrhId] = useState<string | null>(null);
 
-  // Carregar dados da reserva ao abrir a página
   useEffect(() => {
     async function loadReserva() {
       try {
@@ -40,7 +40,7 @@ export default function EditarHospede() {
 
         if (error) throw error;
         if (data) {
-          // Convertemos valores numéricos para string para que o input do formulário aceite
+          setFnrhId(data.fnrh_id);
           setFormData({
             ...data,
             qtd_adultos: data.qtd_adultos?.toString() || '1',
@@ -55,7 +55,6 @@ export default function EditarHospede() {
         setLoading(false);
       }
     }
-
     if (id) loadReserva();
   }, [id]);
 
@@ -69,7 +68,8 @@ export default function EditarHospede() {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from('reservas').update({
+      // 1. ATUALIZAR NO SUPABASE
+      const { error: supabaseError } = await supabase.from('reservas').update({
         ...formData,
         qtd_adultos: parseInt(formData.qtd_adultos),
         qtd_criancas: parseInt(formData.qtd_criancas),
@@ -77,7 +77,31 @@ export default function EditarHospede() {
         valor_restante: parseFloat(formData.valor_restante) || 0,
       }).eq('id', id);
 
-      if (error) throw error;
+      if (supabaseError) throw supabaseError;
+
+      // 2. SINCRONIZAR COM FNRH (Se tivermos o ID da FNRH)
+      if (fnrhId) {
+        let action = 'update';
+        if (formData.status === 'Cancelado') {
+          action = 'cancel';
+        }
+
+        try {
+          await fetch('/api/fnrh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action,
+              fnrh_id: fnrhId,
+              data: formData
+            })
+          });
+        } catch (fnrhError) {
+          console.error('Erro ao sincronizar com FNRH:', fnrhError);
+          // Não travamos o app se a FNRH falhar, mas avisamos
+          alert('Reserva atualizada localmente, mas houve erro ao sincronizar com a FNRH.');
+        }
+      }
 
       alert('Reserva atualizada com sucesso!');
       router.push('/'); 
@@ -88,13 +112,7 @@ export default function EditarHospede() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-600 animate-pulse">Carregando dados da reserva...</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-gray-600 animate-pulse">Carregando...</p></div>;
 
   return (
     <main className="min-h-screen bg-gray-50 pb-10">
@@ -102,10 +120,8 @@ export default function EditarHospede() {
         <button onClick={() => router.push('/')} className="text-2xl">←</button>
         <h1 className="text-xl font-bold">Editar Reserva</h1>
       </header>
-
       <form onSubmit={handleSubmit} className="p-4 max-w-md mx-auto space-y-6">
-        
-        {/* SEÇÃO 1: Dados do Hóspede */}
+        {/* SEÇÕES DO FORMULÁRIO - Mantivemos as mesmas do cadastro */}
         <section className="bg-white p-4 rounded-xl shadow-sm space-y-4 border border-gray-200">
           <h2 className="text-blue-600 font-bold border-b pb-2 mb-4 uppercase text-xs">Dados do Hóspede</h2>
           <div>
@@ -122,7 +138,6 @@ export default function EditarHospede() {
           </div>
         </section>
 
-        {/* SEÇÃO 2: Datas e Ocupação */}
         <section className="bg-white p-4 rounded-xl shadow-sm space-y-4 border border-gray-200">
           <h2 className="text-blue-600 font-bold border-b pb-2 mb-4 uppercase text-xs">Datas e Ocupação</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -145,13 +160,8 @@ export default function EditarHospede() {
               <input type="number" name="qtd_criancas" value={formData.qtd_criancas} onChange={handleChange} className="w-full p-2 border rounded-lg" />
             </div>
           </div>
-          <div>
-            <label className="block text-sm text-gray-600">Idades das crianças</label>
-            <input name="idades_criancas" value={formData.idades_criancas} onChange={handleChange} className="w-full p-2 border rounded-lg" />
-          </div>
         </section>
 
-        {/* SEÇÃO 3: Pagamento e Origem */}
         <section className="bg-white p-4 rounded-xl shadow-sm space-y-4 border border-gray-200">
           <h2 className="text-blue-600 font-bold border-b pb-2 mb-4 uppercase text-xs">Pagamento e Origem</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -173,32 +183,16 @@ export default function EditarHospede() {
               </select>
             </div>
           </div>
-          <div>
-            <label className="block text-sm text-gray-600">Tipo de Pagamento</label>
-            <select name="tipo_pagamento" value={formData.tipo_pagamento} onChange={handleChange} className="w-full p-2 border rounded-lg bg-white">
-              <option value="Pix">Pix</option>
-              <option value="Via Booking">Via Booking</option>
-              <option value="PagSeguro(Crédito)">PagSeguro(Crédito)</option>
-              <option value="PagSeguro(Débito)">PagSeguro(Débito)</option>
-              <option value="PagSeguro(Pix)">PagSeguro(Pix)</option>
-              <option value="Dinheiro">Dinheiro</option>
-            </select>
-          </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col">
-              <label className="block text-sm text-gray-600">Valor Sinal (R$)</label>
-              <input type="number" step="0.01" name="valor_sinal" value={formData.valor_sinal} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+            <div>
+              <label className="block text-sm text-gray-600">Sinal (R$)</label>
+              <input type="number" step="0.01" name="valor_sinal" value={formData.valor_sinal} onChange={handleChange} className="w-//full p-2 border rounded-lg" />
             </div>
-            <div className="flex flex-col">
-              <label className="block text-sm text-gray-600">Resta Pagar (R$)</label>
+            <div>
+              <label className="block text-sm text-gray-600">Resta (R$)</label>
               <input type="number" step="0.01" name="valor_restante" value={formData.valor_restante} onChange={handleChange} className="w-full p-2 border rounded-lg" />
             </div>
           </div>
-        </section>
-
-        <section className="bg-white p-4 rounded-xl shadow-sm space-y-4 border border-gray-200">
-          <label className="block text-sm text-gray-600">Observação</label>
-          <textarea name="observacao" value={formData.observacao} onChange={handleChange} className="w-full p-2 border rounded-lg" rows={3} />
         </section>
 
         <button 
@@ -206,7 +200,7 @@ export default function EditarHospede() {
           disabled={saving}
           className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 disabled:bg-gray-400 transition-all"
         >
-          {saving ? 'Salvando...' : 'SALVAR ALTERAÇÕES'}
+          {saving ? 'Sincronizando...' : 'SALVAR ALTERAÇÕES'}
         </button>
       </form>
     </main>

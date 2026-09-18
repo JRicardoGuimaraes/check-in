@@ -10,10 +10,10 @@ interface Reserva {
   status: string;
   origem: string;
   valor_restante: number;
-  valor_sinal: number; // Adicionado para o dashboard
   nome_hosp_princ: string;
   reserva_ota: string;
   telefone: string;
+  fnrh_link: string; // <--- ADICIONE ESTA LINHA
 }
 
 interface Stats {
@@ -201,6 +201,19 @@ export default function Home() {
                     }`}>
                       {reserva.status}
                     </span>
+                    {/* BOTÃO COPIAR QRCODE */}
+                    {reserva.fnrh_link && (
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(reserva.fnrh_link);
+                          alert('Link do QRCode copiado para a área de transferência!');
+                        }}
+                        className="bg-green-500 text-white p-2 rounded text-xs font-bold px-3 hover:bg-green-600 transition-colors"
+                        title="Copiar link do QRCode"
+                      >
+                        🔗 QRCode
+                      </button>
+                    )}
                     <button 
                       onClick={() => router.push(`/editar/${reserva.id}`)}
                       className="bg-yellow-500 text-white p-2 rounded text-xs font-bold px-3"
