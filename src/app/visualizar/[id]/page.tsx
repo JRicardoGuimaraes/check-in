@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@/lib/supabase'; 
 import { useRouter, useParams } from 'next/navigation';
 
 export default function VisualizarReserva() {
