@@ -14,6 +14,7 @@ interface Reserva {
   reserva_ota: string;
   telefone: string;
   fnrh_link: string; // <--- ADICIONE ESTA LINHA
+  acomodacao: string;
 }
 
 interface Stats {

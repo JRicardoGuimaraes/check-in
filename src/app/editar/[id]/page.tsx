@@ -23,6 +23,7 @@ export default function EditarHospede() {
     origem: 'Zap',
     status: 'Criado',
     observacao: '',
+    acomodacao: '',
   });
 
   const [loading, setLoading] = useState(true);

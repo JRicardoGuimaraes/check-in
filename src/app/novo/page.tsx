@@ -21,6 +21,7 @@ export default function NovoHospede() {
     origem: 'Zap',
     status: 'Criado',
     observacao: '',
+    acomodacao: 'Suíte Estrela Dalva', // Valor padrão
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,6 @@ export default function NovoHospede() {
     setLoading(true);
 
     try {
-      // 1. SALVAR NO SUPABASE
       const { data: supabaseData, error: supabaseError } = await supabase.from('reservas').insert([
         {
           ...formData,
@@ -48,7 +48,6 @@ export default function NovoHospede() {
 
       if (supabaseError) throw supabaseError;
 
-      // 2. SINCRONIZAR COM FNRH
       try {
         const response = await fetch('/api/fnrh', {
           method: 'POST',
@@ -63,8 +62,6 @@ export default function NovoHospede() {
 
         if (response.ok && fnrhResponse.reserva) {
           const { reserva_id, link_precheckin } = fnrhResponse.reserva;
-
-          // 3. ATUALIZAR SUPABASE COM DADOS DA FNRH (ID e QRCode)
           await supabase
             .from('reservas')
             .update({ 
@@ -113,6 +110,16 @@ export default function NovoHospede() {
           <div>
             <label className="block text-sm text-gray-600">Número Reserva OTA</label>
             <input name="reserva_ota" value={formData.reserva_ota} onChange={handleChange} className="w-full p-2 border rounded-lg" placeholder="Código da reserva" />
+          </div>
+          {/* NOVO CAMPO ACOMODAÇÃO */}
+          <div>
+            <label className="block text-sm text-gray-600">Acomodação</label>
+            <select name="acomodacao" value={formData.acomodacao} onChange={handleChange} className="w-full p-2 border rounded-lg bg-white">
+              <option value="Suíte Estrela Dalva">Suíte Estrela Dalva</option>
+              <option value="Suíte Estrela Azul">Suíte Estrela Azul</option>
+              <option value="Suíte Estrela Branca">Suíte Estrela Branca</option>
+              <option value="Suíte Estrela Verde">Suíte Estrela Verde</option>
+            </select>
           </div>
         </section>
 
