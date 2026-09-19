@@ -232,14 +232,15 @@ export default function Home() {
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <div className="text-left">
+                  <div 
+                    className="text-left cursor-pointer hover:opacity-80 transition-all" 
+                    onClick={() => router.push(`/visualizar/${reserva.id}`)}
+                  >
                     <p className="text-gray-900 font-bold text-lg">
                       {reserva.nome_hosp_princ || 'Hóspede não informado'}
                     </p>
+                    <p className="text-blue-600 text-sm font-medium">🏠 {reserva.acomodacao || 'Sem acomodação'}</p>
                     <p className="text-gray-600 text-sm">📞 {reserva.telefone || 'Sem telefone'}</p>
-                    <p className="text-gray-500 text-xs mt-1">
-                      Check-in: {reserva.data_checkin} | Check-out: {reserva.data_checkout}
-                    </p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-400">A pagar</p>
