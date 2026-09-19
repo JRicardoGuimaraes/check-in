@@ -117,8 +117,10 @@ export default function NovoHospede() {
             <select name="acomodacao" value={formData.acomodacao} onChange={handleChange} className="w-full p-2 border rounded-lg bg-white">
               <option value="Suíte Estrela Dalva">Suíte Estrela Dalva</option>
               <option value="Suíte Estrela Azul">Suíte Estrela Azul</option>
-              <option value="Suíte Estrela Branca">Suíte Estrela Branca</option>
-              <option value="Suíte Estrela Verde">Suíte Estrela Verde</option>
+              <option value="Suíte Estrela Amarela">Suíte Estrela Amarela</option>
+              <option value="Suíte Área Família">Suíte Área Família</option>
+              <option value="Camping">Camping</option>
+              <option value="Cabana">Cabana</option>
             </select>
           </div>
         </section>
