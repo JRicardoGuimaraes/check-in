@@ -12,7 +12,12 @@ export default function VisualizarReserva() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
-  
+ function formatarData(data: string) {
+  if (!data) return 'N/A';
+  const [ano, mes, dia] = data.split('-');
+  return `${dia}/${mes}/${ano}`;
+ }
+
   useEffect(() => {
     async function loadReserva() {
       try {
@@ -125,11 +130,11 @@ export default function VisualizarReserva() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-500 uppercase">Check-in</label>
-              <p className="text-gray-900 font-medium">{reserva.data_checkin}</p>
+              <p className="text-gray-900 font-medium">{formatarData(reserva.data_checkin)}</p>
             </div>
             <div>
               <label className="block text-xs text-gray-500 uppercase">Check-out</label>
-              <p className="text-gray-900 font-medium">{reserva.data_checkout}</p>
+              <p className="text-gray-900 font-medium">{formatarData(reserva.data_checkout)}</p>
             </div>
             <div>
               <label className="block text-xs text-gray-500 uppercase">Adultos</label>
