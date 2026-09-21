@@ -7,14 +7,19 @@ interface Reserva {
   id: string;
   data_checkin: string;
   data_checkout: string;
-  status: string;
-  origem: string;
-  valor_restante: number;
+  qtd_adultos: number;
+  qtd_criancas: number;
+  idades_criancas: string;
+  tipo_pagamento: string;
+  valor_sinal: number | string;    // <--- ADICIONE ESTA LINHA
+  valor_restante: number | string; // <--- ADICIONE ESTA LINHA
   nome_hosp_princ: string;
   reserva_ota: string;
   telefone: string;
-  fnrh_link: string; // <--- ADICIONE ESTA LINHA
+  fnrh_link: string;
   acomodacao: string;
+  status: string;                  // Garanta que status também esteja aqui
+  origem: string;
 }
 
 interface Stats {
@@ -46,9 +51,8 @@ export default function Home() {
   }, [filtroStatus, filtroDataInicio, filtroDataFim]);
 
   // Função para calcular estatísticas do Dashboard
-  function calculateStats(resList: Reserva[]) {
+    function calculateStats(resList: Reserva[]) {
     const hoje = new Date().toISOString().split('T')[0];
-    
     let ocupacao = 0;
     let sinais = 0;
     let restante = 0;
@@ -62,8 +66,9 @@ export default function Home() {
         ocupacao++;
       }
 
-      sinais += (res.valor_sinal || 0);
-      restante += (res.valor_restante || 0);
+      // CORREÇÃO AQUI: Convertendo string para número antes de somar
+      sinais += parseFloat(res.valor_sinal?.toString() || '0');
+      restante += parseFloat(res.valor_restante?.toString() || '0');
     });
 
     setStats({
@@ -83,7 +88,7 @@ export default function Home() {
       if (filtroDataInicio) query = query.gte('data_checkin', filtroDataInicio);
       if (filtroDataFim) query = query.lte('data_checkin', filtroDataFim);
 
-      const { data, error } = await query.order('data_checkin', { ascending: false });
+      const { data, error } = await query.order('data_checkin', { ascending: true });
 
       if (error) {
         console.error('Erro ao buscar reservas:', error);
