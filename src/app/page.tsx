@@ -266,7 +266,7 @@ export default function Home() {
           <div className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl">
             <h3 className="text-lg font-bold mb-4 text-gray-800">Filtrar por Status</h3>
             <div className="space-y-2">
-              {['Criado', 'Atendido', 'Check-in Feito', 'Cancelado'].map((status) => (
+              {['Criado', 'Atendido', 'Check-in Feito', 'Cancelado', 'Adiado'].map((status) => (
                 <button 
                   key={status}
                   onClick={() => {

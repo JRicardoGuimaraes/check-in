@@ -181,6 +181,7 @@ export default function EditarHospede() {
                 <option value="Atendido">Atendido</option>
                 <option value="Check-in Feito">Check-in Feito</option>
                 <option value="Cancelado">Cancelado</option>
+                <option value="Adiado">Adiado</option>
               </select>
             </div>
           </div>
