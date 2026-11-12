@@ -27,6 +27,8 @@ interface Stats {
   totalSinais: number;
   totalAReceber: number;
   totalBruto: number;
+  totalAdultos: number;
+  totalCriancas: number;
 }
 
 export default function Home() {
@@ -36,7 +38,9 @@ export default function Home() {
     ocupacaoHoje: 0,
     totalSinais: 0,
     totalAReceber: 0,
-    totalBruto: 0
+    totalBruto: 0,
+    totalAdultos: 0,
+    totalCriancas: 0
   });
   const router = useRouter();
 
@@ -56,6 +60,8 @@ export default function Home() {
     let ocupacao = 0;
     let sinais = 0;
     let restante = 0;
+    let totalAdultos = 0;
+    let totalCriancas = 0;
 
     resList.forEach(res => {
       // Não conta reservas canceladas no financeiro
@@ -69,13 +75,19 @@ export default function Home() {
       // CORREÇÃO AQUI: Convertendo string para número antes de somar
       sinais += parseFloat(res.valor_sinal?.toString() || '0');
       restante += parseFloat(res.valor_restante?.toString() || '0');
+
+      // Totais de hospedes (adultos e criancas)
+      totalAdultos += Number(res.qtd_adultos) || 0;
+      totalCriancas += Number(res.qtd_criancas) || 0;
     });
 
     setStats({
       ocupacaoHoje: ocupacao,
       totalSinais: sinais,
       totalAReceber: restante,
-      totalBruto: sinais + restante
+      totalBruto: sinais + restante,
+      totalAdultos: totalAdultos,
+      totalCriancas: totalCriancas
     });
   }
 
@@ -157,6 +169,11 @@ export default function Home() {
                 <p className="text-sm font-bold text-gray-600">{formatCurrency(stats.totalBruto)}</p>
               </div>
             </div>
+          </div>
+          <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-500 col-span-2">
+            <p className="text-xs text-gray-500 font-medium uppercase">👥 Total de Hóspedes</p>
+            <p className="text-2xl font-black text-purple-600">{stats.totalAdultos + stats.totalCriancas}</p>
+            <p className="text-xs text-gray-400 mt-1">Adultos: {stats.totalAdultos} | Crianças: {stats.totalCriancas}</p>
           </div>
         </div>
         {/* --- END DASHBOARD --- */}
@@ -246,6 +263,13 @@ export default function Home() {
                     </p>
                     <p className="text-blue-600 text-sm font-medium">🏠 {reserva.acomodacao || 'Sem acomodação'}</p>
                     <p className="text-gray-600 text-sm">📞 {reserva.telefone || 'Sem telefone'}</p>
+                    <div className="flex items-center gap-3 text-sm text-gray-700 mt-1">
+                      <span>👨‍👩‍👧 Adultos: {reserva.qtd_adultos ?? 0}</span>
+                      <span>👶 Crianças: {reserva.qtd_criancas ?? 0}</span>
+                      {reserva.idades_criancas && (
+                        <span className="text-xs text-gray-500">({reserva.idades_criancas})</span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-400">A pagar</p>
